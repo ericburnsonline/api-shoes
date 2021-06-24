@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+        <head>
+                <script type="text/javascript">
+
+                // To do:
+                // Fix checking if string under a lenght and/or convert it to an int
+
+                // We are sent some sort of parameter.
+                // Strip out non-numeric characters (could use /D) then make sure SKU is from 00000-99999
+                // Script is crude, lacks much error checking but works
+
+                // Get parameter
+                var sku = new URLSearchParams(window.location.search);
+                sku = sku.toString().replace(/[^0-9]/g,'');  // Brutal code, but keep it simple - remove any non-decimal characters
+
+                var shoe = new Object(); // Create shoe object
+                var errorMessage = new Object();
+                errorMessage.error = "Bad Request - Your request is missing parameters. Please verify and resubmit. Issue Reference Number BR0x0071";
+
+                if ((sku >= 0)&&(sku <=99999)) { // Build details (in JSON) from parameter sent
+                        while (sku.length< 5) {
+                                sku = "0" + sku;
+                        }
+
+                        shoe.sku = sku;
+                        shoePrice = 0;
+
+                        // 0-9 = size then 0=10, 1=11, 2=12, 3=13
+                        shoe.size = sku.substring(0,1);
+                        if (shoe.size < 4) { // Kludge, but it works
+                                shoe.size = "1" + shoe.size;
+                        }
+                        shoePrice = shoePrice + parseInt(shoe.size)*0.80;
+
+                        // 0-9 = width
+                        var widths = ["Super Slim","Slim","Narrow","Medium","Standard Width","Wide","Extra Wide","2X Wide","3X Wide","4X Wide"];
+                        shoe.width = widths[sku.substring(1,2)];
+                        shoePrice = shoePrice + parseInt(shoe.size)*0.08;
+
+                        // 0-9 = color
+                        var colors = ["Black","Beige","Gray","Red","White","Navy Blue","Green","Burgundy","Emerald","Pink"];
+                        shoe.color = colors[sku.substring(2,3)];
+                        shoePrice = shoePrice + (parseInt(sku.substring(2,3)))*0.03;
+
+                        // 0-9 = material
+                        var materials = ["Canvas","Leather","Burnished Leather","Distressed Leather","Fabric","Faux Leather","Full-Grain Leather","Microfiber","Napa Leather","Suede"];
+                        shoe.material = materials[sku.substring(3,4)];
+                        shoePrice = shoePrice + (parseInt(sku.substring(2,3)))*0.05;
+
+                        // 0-9 = style
+                        var styles = ["Wedge","Wellington Boot","Mule","Loafer","Gladiator Sandal","Trainers","Court Shoe","Chelsea Boot","Ankle Boot","Calf Boot"];
+                        shoe.style = styles[sku.substring(4)];
+                        shoePrice = shoePrice + (parseInt(sku.substring(2,3)))*0.21;
+
+                        shoe.price = "$" + shoePrice.toFixed(2);
+                }
+
+                function myfunction() {
+                        if ((sku >= 0)&&(sku <=99999)) {
+                                document.write(JSON.stringify(shoe));
+                        } else {
+                                document.write(JSON.stringify(errorMessage));
+                        }
+                }
+                </script>
+
+        </head>
+        <body>
+                <script type="text/javascript">
+                        myfunction();
+                </script>
+        </body>
+</html>
+
